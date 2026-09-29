@@ -2,7 +2,7 @@
 <html lang="tr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Playus Prova"><meta name="theme-color" content="#111116">
-<title>Playus Training · Jetpack Robo V3 + Chicken Up + Piano V2 + Zig V3 + React</title><meta name="hub-build" content="JPR-20260928-03">
+<title>Playus Training · Swipe Fast + Jetpack Robo V3 + Chicken Up + Piano V2 + Zig V3 + React</title><meta name="hub-build" content="SWF-20260929-01">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;background:#111116;color:#fff;touch-action:manipulation}button{font:inherit}
 #home{min-height:100dvh;padding:max(28px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom))}
@@ -44,12 +44,13 @@
 @media (orientation:landscape) and (max-height:520px){.zig-ranks,.zig-badge{display:none}.zig-score-wrap{top:16%}.zig-overlay{inset:0}.zig-overlay-inner{padding:0}.zig-hint{display:none}}
 </style></head><body>
 <main id="home"><div class="eyebrow">PLAYUS TRAINING HUB</div><h1>Antrenman<br>Alanı</h1><div class="lead">Playus denemeni harcamadan önce mekaniği çalış. Oyun seç:</div>
+<button class="card swipe-fast" onclick="openSwipeFast()"><div class="badge">SWIPE FAST V1</div><b>Swipe Fast</b><span>Dört ayrı süre · yön kaydırma · kayıt modeli</span><div class="best" id="homeSwipeBest">1× kayıt provası rekoru: 0</div></button>
 <button class="card jetpack" onclick="openJetpack()"><div class="badge">JETPACK ROBO V3</div><b>Jetpack Robo</b><span>Tut / bırak · dengeli fizik · kademeli zorluk</span><div class="best" id="homeJetpackBest">1× tam deneme rekoru: 0 m</div></button>
 <button class="card chicken" onclick="openChicken()"><div class="badge">CHICKEN UP V1</div><b>Chicken Up</b><span>Daralan geçit · sağ/sol kontrol · video parkuru</span><div class="best" id="homeChickenBest">1× tam deneme rekoru: 0 m</div></button>
 <button class="card piano" onclick="openPiano()"><div class="badge">PIANO V2</div><b>Piano</b><span>Ekrana göre tuş boyu · kare ölçümlü hızlanma</span><div class="best" id="homePianoBest">1× tam deneme rekoru: 0</div></button>
 <button class="card react" onclick="openReact()"><div class="badge">REACTION</div><b>React</b><span>3×3 hedef · 5 tur · milisaniye reaksiyon</span><div class="best" id="homeReactBest">En iyi: —</div></button>
 <button class="card zig" onclick="openZig()"><div class="badge">ZIG V3</div><b>Zig</b><span>Video parkuru · perspektif platform · referans hız</span><div class="best" id="homeZigBest">En iyi: 0</div></button>
-<div class="hub-build"><span>HUB 05 · JETPACK ROBO V3<br>JPR-20260928-03</span><button type="button" onclick="refreshTrainingHub()">Sürümü yenile</button></div><p class="build-note">JETPACK ROBO V3 · GAME FEEL CALIBRATION<br>Chicken Up, Piano V2, Zig V3 ve React korunmuştur.<br>React: mevcut 3×3 / 5 tur antrenmanı.<br>Resmî Playus uygulaması değildir; skorlar yalnız bu cihazda tutulur.</p><div class="boot-warning" id="bootWarning">Oyun kodu henüz çalışmadı. Bu ekran dosya önizlemesiyse oyunu yayımladığın GitHub Pages adresinden aç.</div></main>
+<div class="hub-build"><span>HUB 06 · SWIPE FAST V1<br>SWF-20260929-01</span><button type="button" onclick="refreshTrainingHub()">Sürümü yenile</button></div><p class="build-note">SWIPE FAST V1 · DÖRT AYRI SAYAÇ<br>Jetpack Robo V3, Chicken Up, Piano V2, Zig V3 ve React korunmuştur.<br>React: mevcut 3×3 / 5 tur antrenmanı.<br>Resmî Playus uygulaması değildir; skorlar yalnız bu cihazda tutulur.</p><div class="boot-warning" id="bootWarning">Oyun kodu henüz çalışmadı. Bu ekran dosya önizlemesiyse oyunu yayımladığın GitHub Pages adresinden aç.</div></main>
 
 <section class="game" id="reactGame"><button class="back" onclick="goHome()">← Oyunlar</button><div class="rtitle">React</div>
 <div class="rstats"><div class="pill" id="rr">0/5</div><div class="pill" id="rl">Son: —</div><div class="pill" id="rb">En iyi: —</div></div>
@@ -1382,4 +1383,764 @@ window.refreshTrainingHub=function(){const u=new URL(location.href);u.searchPara
 
 
 document.getElementById("bootWarning").hidden=true;
-</script></body></html>
+</script><style>
+/* Swipe Fast: isolated screen. Existing game sizes/physics are not modified. */
+.card.swipe-fast{background:linear-gradient(125deg,#65258f,#a047ca);min-height:175px}.card.swipe-fast .badge{background:#ffdf56;color:#452055}.card.swipe-fast b{font-size:31px}.card.swipe-fast span{max-width:74%}
+#swipeGame{height:100dvh;inset:0 0 auto;background:#802cae;color:#fff;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#swipeCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-touch-callout:none}
+.sf-tools{position:absolute;z-index:9;top:max(9px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none}.sf-tools button{pointer-events:auto;width:38px;height:38px;border:1px solid #ffffff22;border-radius:50%;background:#32103d9c;color:white;font:700 23px -apple-system,Arial;padding:0;touch-action:manipulation}
+.sf-overlay{position:absolute;z-index:8;inset:0;background:#1e072bce;display:flex;align-items:center;justify-content:center;padding:62px 15px max(20px,env(safe-area-inset-bottom));overflow:auto;touch-action:pan-y}
+.sf-sheet{width:min(430px,100%);max-height:100%;overflow:auto;overscroll-behavior:contain;border-radius:26px;background:#31103ff7;border:1px solid #f7d2ff28;padding:22px;box-shadow:0 16px 70px #18042360;touch-action:pan-y}
+.sf-kicker{color:#ead0f7;font-size:10px;font-weight:800;letter-spacing:1.4px}.sf-sheet h2{font-size:34px;line-height:1.06;letter-spacing:-.8px;margin:9px 0 12px}.sf-sheet p{color:#e4d5ea;font-size:13px;line-height:1.55;margin:0 0 15px}.sf-options{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}.sf-field{font-size:11px;color:#dcc2e7;display:flex;flex-direction:column;gap:6px}.sf-field select{width:100%;border-radius:10px;min-height:44px;padding:8px 7px;border:1px solid #ffffff28;background:#542465;color:white;font:13px -apple-system,Arial;touch-action:manipulation}.sf-check{display:flex;align-items:center;gap:8px;color:#e4cce9;font-size:12px;margin:12px 0;line-height:1.4}.sf-check input{width:19px;height:19px;accent-color:#ffdc55}.sf-play{font:850 16px -apple-system,Arial;min-height:49px;border:1px solid #fff1b5;border-radius:13px;width:100%;padding:14px;background:#ffdf56;color:#27142f;touch-action:manipulation}.sf-secondary{background:#603071;color:#fff;border-color:#ffffff18;margin-top:9px}.sf-link{background:transparent;color:#d3b8df;border:0;margin-top:7px;font-size:12px;min-height:40px}.sf-note{font-size:10px!important;color:#bea3cb!important;line-height:1.5!important;margin-top:12px!important}.sf-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.sf-stat{padding:11px;border-radius:11px;background:#ffffff0b;color:#d4bfe2;font-size:10px}.sf-stat b{display:block;color:#fff;font-size:22px;margin-bottom:3px;font-variant-numeric:tabular-nums}.sf-reason{white-space:pre-line;padding:12px;border-radius:12px;background:#f7c84614;border:1px solid #ffd54b25}.sf-sheet details{font-size:12px;color:#dbc6e6;line-height:1.6;margin-top:12px}.sf-sheet summary{padding:6px 0;font-weight:700;cursor:pointer}.sf-sheet details p{font-size:12px;margin:7px 0 11px}.sf-settings-note{margin-top:10px!important}.sf-lab{border-top:1px solid #ffffff18;padding-top:9px}.sf-lab label{margin:8px 0}
+@media(max-height:770px){.sf-overlay{align-items:flex-start;padding-top:max(54px,calc(env(safe-area-inset-top) + 44px))}.sf-sheet{padding:18px}.sf-sheet h2{font-size:29px}}
+</style>
+<section class="game" id="swipeGame" aria-label="Swipe Fast antrenmanı">
+ <canvas id="swipeCanvas" aria-label="Dört kart. Her kartın üzerinde okun gösterdiği yönde kaydır. Her kartın süresi ayrıdır."></canvas>
+ <div class="sf-tools"><button type="button" id="swipeExit" aria-label="Oyunlara dön">‹</button><button type="button" id="swipePause" aria-label="Duraklat" hidden>Ⅱ</button></div>
+ <div class="sf-overlay" id="swipeOverlay"><div class="sf-sheet">
+  <div class="sf-kicker">SWIPE FAST V1 · DÖRT AYRI SÜRE</div>
+  <h2 id="swipeHeading">Oku gör.<br>Kutunun üzerinde kaydır.</h2>
+  <p id="swipeIntro">Her doğru kaydırma <strong>yalnız o kartın süresini</strong> artırır. Diğer üç sayaç beklemez. Bir kartın süresi biterse deneme biter.</p>
+  <div id="swipeSettings"><div class="sf-options">
+   <label class="sf-field">Çalışma<select id="swipeMode"><option value="challenge">Süreli prova</option><option value="untimed">Süresiz yön çalışması</option></select></label>
+   <label class="sf-field">Yön dizileri<select id="swipeRoute"><option value="video">Kayıttaki kart dizileri</option><option value="random">Rastgele yönler</option></select></label>
+   <label class="sf-field">Sayaç temposu<select id="swipeSpeed"><option value="0.75">0,75× · öğren</option><option value="1" selected>1,00× · kayıt modeli</option><option value="1.15">1,15× · zor</option></select></label>
+   <label class="sf-field">Ekran<select id="swipeLayout"><option value="screen">Ekrana uyumlu kareler</option><option value="reference">Sabit video oranı</option></select></label>
+  </div>
+  <label class="sf-check"><input id="swipeGuide" type="checkbox">Önce bitecek sayacı çerçevele</label>
+  <details class="sf-lab"><summary>Kaydırma hassasiyeti ve ölçüm sınırı</summary>
+   <label class="sf-field">Gerekli kaydırma uzunluğu<select id="swipeThreshold"><option value="0.075">Kısa · kartın %7,5'i</option><option value="0.1" selected>Dengeli · kartın %10'u</option><option value="0.15">Uzun · kartın %15'i</option></select></label>
+   <p>Başlangıç kartın içinde olmalı; hareket eşiği aşılınca bir kez sayılır. Parmağın komşu karta geçmesi ikinci puan vermez. Yeni hareket için parmağı kaldır.</p>
+   <p>Videoda parmak izi yok: bu eşik ve açı toleransı Playus'tan ölçülmüş değildir. Yanlış yönde bu trainer puan/ek süre vermez; mevcut süre akmaya devam eder. Özgün hata cezası doğrulanmadı.</p>
+  </details>
+  <p id="swipeSizeInfo" class="sf-note"></p></div>
+  <p id="swipeReason" class="sf-reason" hidden></p><div id="swipeStats" class="sf-stats" hidden></div>
+  <button type="button" class="sf-play" id="swipeStart">BAŞLA</button>
+  <button type="button" class="sf-play sf-secondary" id="swipeWatch">KAYDIN OYUNUNU İZLE · PUANSIZ</button>
+  <button type="button" class="sf-play sf-link" id="swipeConfigure" hidden>AYARLARA DÖN</button>
+  <details id="swipeTips"><summary>En önemli oyun tüyoları</summary>
+   <p><strong>Ok değişmese de başarı gelmiş olabilir.</strong> Skor ve süre artışını kontrol et; aynı yön yeniden gelebilir.</p>
+   <p><strong>Dört kutuyu eşit sıklıkta gezmek şart değil.</strong> Kayıtta alt-sağ sayaç en hızlı, üst-sol en yavaş tükeniyor. Aciliyeti çubuğun kalan payıyla ve tükenme hızıyla birlikte değerlendir.</p>
+   <p><strong>Kısa, ekseni net hareket.</strong> Kutu ortasından başla; parmağını tüm ekran boyunca sürükleme. Her kaydırmadan sonra kaldır.</p>
+   <p><strong>İki ele bölmeyi dene.</strong> Sol başparmak soldaki, sağ başparmak sağdaki iki kartta kalsın. Önce hatasız yön, sonra hız.</p>
+  </details>
+  <p id="swipeFootnote" class="sf-note">71 puanlık video referansı. Kart yerleşimi ve 71 başarılı hamle izlendi; ayrı sayaçların azalışı ve süre kazanımı görüntüden uyarlandı. Kayıt sonrası yeni yönler üretilir. Kesin parmak eşiği, özgün hata cezası ve aynı iPhone'daki fiziksel ölçek doğrulanmadı. Resmî Playus uygulaması değildir.</p>
+ </div></div>
+ <span id="swipeAccessible" style="position:absolute;width:1px;height:1px;overflow:hidden" aria-live="off">0 puan</span>
+</section>
+
+<script>
+/* Swipe Fast V1: independent local trainer. Model inputs come from the uploaded
+ * 512x1128 video, not Playus source. Timers are fitted, gesture thresholds are
+ * explicitly chosen assumptions. No network, account access or score submission.
+ */
+window.SwipeFast=(()=>{
+ 'use strict';
+ const $=id=>document.getElementById(id),canvas=$('swipeCanvas'),ctx=canvas.getContext('2d',{alpha:false});
+ const REF={
+  "anchor": 7.433333,
+  "end": 30.733333,
+  "fps": 30,
+  "initial": [
+    "R",
+    "U",
+    "U",
+    "U"
+  ],
+  "sequences": [
+    [
+      "R",
+      "R",
+      "D",
+      "R",
+      "R",
+      "L",
+      "R",
+      "U",
+      "D",
+      "U",
+      "R",
+      "L",
+      "U",
+      "D"
+    ],
+    [
+      "U",
+      "L",
+      "D",
+      "R",
+      "D",
+      "D",
+      "R",
+      "L",
+      "U",
+      "R",
+      "U",
+      "D",
+      "U",
+      "D",
+      "L",
+      "L",
+      "R",
+      "L"
+    ],
+    [
+      "U",
+      "U",
+      "R",
+      "L",
+      "L",
+      "D",
+      "U",
+      "D",
+      "L",
+      "D",
+      "R",
+      "R",
+      "R",
+      "R",
+      "R",
+      "U",
+      "U",
+      "L",
+      "R",
+      "D"
+    ],
+    [
+      "U",
+      "L",
+      "L",
+      "L",
+      "U",
+      "D",
+      "L",
+      "R",
+      "U",
+      "R",
+      "D",
+      "L",
+      "R",
+      "R",
+      "U",
+      "U",
+      "R",
+      "U",
+      "U",
+      "U",
+      "L",
+      "U",
+      "R"
+    ]
+  ],
+  "events": [
+    {
+      "t": 0.033334,
+      "tile": 1,
+      "before": "U",
+      "after": "L"
+    },
+    {
+      "t": 0.433334,
+      "tile": 3,
+      "before": "U",
+      "after": "L"
+    },
+    {
+      "t": 0.7,
+      "tile": 2,
+      "before": "U",
+      "after": "U"
+    },
+    {
+      "t": 0.9,
+      "tile": 0,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 1.266667,
+      "tile": 1,
+      "before": "L",
+      "after": "D"
+    },
+    {
+      "t": 1.533334,
+      "tile": 3,
+      "before": "L",
+      "after": "L"
+    },
+    {
+      "t": 1.8,
+      "tile": 2,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 2.133334,
+      "tile": 0,
+      "before": "R",
+      "after": "D"
+    },
+    {
+      "t": 2.366667,
+      "tile": 1,
+      "before": "D",
+      "after": "R"
+    },
+    {
+      "t": 2.7,
+      "tile": 3,
+      "before": "L",
+      "after": "L"
+    },
+    {
+      "t": 3.133334,
+      "tile": 2,
+      "before": "R",
+      "after": "L"
+    },
+    {
+      "t": 3.433334,
+      "tile": 3,
+      "before": "L",
+      "after": "U"
+    },
+    {
+      "t": 4.066667,
+      "tile": 2,
+      "before": "L",
+      "after": "L"
+    },
+    {
+      "t": 4.333334,
+      "tile": 1,
+      "before": "R",
+      "after": "D"
+    },
+    {
+      "t": 4.7,
+      "tile": 0,
+      "before": "D",
+      "after": "R"
+    },
+    {
+      "t": 5.033334,
+      "tile": 2,
+      "before": "L",
+      "after": "D"
+    },
+    {
+      "t": 5.3,
+      "tile": 3,
+      "before": "U",
+      "after": "D"
+    },
+    {
+      "t": 5.666667,
+      "tile": 1,
+      "before": "D",
+      "after": "D"
+    },
+    {
+      "t": 5.933334,
+      "tile": 3,
+      "before": "D",
+      "after": "L"
+    },
+    {
+      "t": 6.266667,
+      "tile": 2,
+      "before": "D",
+      "after": "U"
+    },
+    {
+      "t": 6.533334,
+      "tile": 3,
+      "before": "L",
+      "after": "R"
+    },
+    {
+      "t": 6.866667,
+      "tile": 2,
+      "before": "U",
+      "after": "D"
+    },
+    {
+      "t": 7.2,
+      "tile": 1,
+      "before": "D",
+      "after": "R"
+    },
+    {
+      "t": 7.466667,
+      "tile": 0,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 7.8,
+      "tile": 2,
+      "before": "D",
+      "after": "L"
+    },
+    {
+      "t": 8.1,
+      "tile": 3,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 8.4,
+      "tile": 1,
+      "before": "R",
+      "after": "L"
+    },
+    {
+      "t": 8.766667,
+      "tile": 0,
+      "before": "R",
+      "after": "L"
+    },
+    {
+      "t": 9.133334,
+      "tile": 2,
+      "before": "L",
+      "after": "D"
+    },
+    {
+      "t": 9.466667,
+      "tile": 3,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 9.833334,
+      "tile": 1,
+      "before": "L",
+      "after": "U"
+    },
+    {
+      "t": 10.1,
+      "tile": 0,
+      "before": "L",
+      "after": "R"
+    },
+    {
+      "t": 10.466667,
+      "tile": 2,
+      "before": "D",
+      "after": "R"
+    },
+    {
+      "t": 10.766667,
+      "tile": 3,
+      "before": "R",
+      "after": "D"
+    },
+    {
+      "t": 11.033334,
+      "tile": 1,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 11.366667,
+      "tile": 0,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 11.7,
+      "tile": 2,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 11.966667,
+      "tile": 3,
+      "before": "D",
+      "after": "L"
+    },
+    {
+      "t": 12.333334,
+      "tile": 1,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 12.633334,
+      "tile": 3,
+      "before": "L",
+      "after": "R"
+    },
+    {
+      "t": 13.0,
+      "tile": 2,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 13.3,
+      "tile": 3,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 13.6,
+      "tile": 1,
+      "before": "U",
+      "after": "D"
+    },
+    {
+      "t": 13.9,
+      "tile": 0,
+      "before": "U",
+      "after": "D"
+    },
+    {
+      "t": 14.233334,
+      "tile": 2,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 14.5,
+      "tile": 3,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 14.733334,
+      "tile": 1,
+      "before": "D",
+      "after": "U"
+    },
+    {
+      "t": 15.066667,
+      "tile": 0,
+      "before": "D",
+      "after": "U"
+    },
+    {
+      "t": 15.433334,
+      "tile": 2,
+      "before": "R",
+      "after": "R"
+    },
+    {
+      "t": 15.7,
+      "tile": 3,
+      "before": "U",
+      "after": "U"
+    },
+    {
+      "t": 16.0,
+      "tile": 1,
+      "before": "U",
+      "after": "D"
+    },
+    {
+      "t": 16.333334,
+      "tile": 0,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 16.6,
+      "tile": 3,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 16.866667,
+      "tile": 2,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 17.133334,
+      "tile": 3,
+      "before": "R",
+      "after": "U"
+    },
+    {
+      "t": 17.466667,
+      "tile": 1,
+      "before": "D",
+      "after": "L"
+    },
+    {
+      "t": 18.1,
+      "tile": 2,
+      "before": "U",
+      "after": "U"
+    },
+    {
+      "t": 18.333334,
+      "tile": 3,
+      "before": "U",
+      "after": "U"
+    },
+    {
+      "t": 18.733334,
+      "tile": 1,
+      "before": "L",
+      "after": "L"
+    },
+    {
+      "t": 19.0,
+      "tile": 0,
+      "before": "R",
+      "after": "L"
+    },
+    {
+      "t": 19.333334,
+      "tile": 3,
+      "before": "U",
+      "after": "U"
+    },
+    {
+      "t": 19.666667,
+      "tile": 2,
+      "before": "U",
+      "after": "L"
+    },
+    {
+      "t": 19.9,
+      "tile": 1,
+      "before": "L",
+      "after": "R"
+    },
+    {
+      "t": 20.433334,
+      "tile": 0,
+      "before": "L",
+      "after": "U"
+    },
+    {
+      "t": 20.733334,
+      "tile": 3,
+      "before": "U",
+      "after": "L"
+    },
+    {
+      "t": 20.966667,
+      "tile": 2,
+      "before": "L",
+      "after": "R"
+    },
+    {
+      "t": 21.3,
+      "tile": 3,
+      "before": "L",
+      "after": "U"
+    },
+    {
+      "t": 21.7,
+      "tile": 2,
+      "before": "R",
+      "after": "D"
+    },
+    {
+      "t": 22.0,
+      "tile": 1,
+      "before": "R",
+      "after": "L"
+    },
+    {
+      "t": 22.266667,
+      "tile": 3,
+      "before": "U",
+      "after": "R"
+    },
+    {
+      "t": 22.933334,
+      "tile": 0,
+      "before": "U",
+      "after": "D"
+    }
+  ],
+  "timer": {
+    "base": [
+      0.1264873,
+      0.1655336,
+      0.2031914,
+      0.2530069
+    ],
+    "growth": 0.0622604,
+    "tau": 0.1124737,
+    "bonus": 0.5051663
+  },
+  "geometry": {
+    "width": 512,
+    "activeHeight": 1028,
+    "cropTop": 40,
+    "cropBottom": 1068,
+    "card": 208,
+    "gap": 16,
+    "left": 40,
+    "top": 458
+  }
+};
+ const CFG=Object.freeze({version:'1.0.0',width:512,height:1028,side:208,gap:16,boardCenter:674/1028,scoreCenter:280/1028,axisRatio:1.25,key:'hubSwipeFastV1Best'});
+ const names=['Üst-sol','Üst-sağ','Alt-sol','Alt-sağ'];
+ let state='closed',prior='running',mode={mode:'challenge',route:'video',speed:1,layout:'screen',guide:false,threshold:.1};
+ let cells=[],score=0,errors=0,elapsed=0,clock=0,countdown=0,raf=0,stamp=null,width=1,height=1,dpr=1,safeTop=0,safeBottom=0;
+ let layout={scale:1,x:0,y:0,h:1028,card:208,rects:[]},pointers=new Map(),locks=new Map(),seed=817291;
+ let best=Math.max(0,Number(storage.get(CFG.key))||0),watch=false,watchIndex=0,manual=false,recordedOnly=true,notice='',noticeUntil=0,missed=-1,lastDrawnScore=-1,correctTimes=[];
+ function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}
+ function readSettings(){mode={mode:$('swipeMode').value,route:$('swipeRoute').value,speed:Number($('swipeSpeed').value),layout:$('swipeLayout').value,guide:$('swipeGuide').checked,threshold:Number($('swipeThreshold').value)};}
+ function eligible(){return !watch&&!manual&&mode.mode==='challenge'&&mode.route==='video'&&mode.speed===1&&!mode.guide&&mode.threshold===.1;}
+ function homeBest(){$('homeSwipeBest').textContent='1× kayıt provası rekoru: '+best;}
+ function cancelFrame(){if(raf)cancelAnimationFrame(raf);raf=0;}
+ function clearInput(){for(const id of pointers.keys())try{if(canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);}catch(_){}pointers.clear();locks.clear();}
+ function reset(){cancelFrame();clearInput();score=0;errors=0;elapsed=0;clock=0;watchIndex=0;recordedOnly=mode.route==='video';notice='';noticeUntil=0;missed=-1;lastDrawnScore=-1;correctTimes=[];stamp=null;
+  seed=mode.route==='video'?817291:(Math.random()*4294967295)>>>0;
+  cells=REF.initial.map((dir,i)=>({dir:mode.route==='video'?dir:['R','U','L','D'][Math.floor(random()*4)],energy:1,shown:1,turn:0,flash:-99,wrong:-99,index:i}));
+ }
+ function resize(){
+  if(state==='closed')return;const r=canvas.getBoundingClientRect(),gs=getComputedStyle($('swipeGame'));
+  width=Math.max(1,r.width);height=Math.max(1,r.height);safeTop=parseFloat(gs.paddingTop)||0;safeBottom=parseFloat(gs.paddingBottom)||0;
+  const ah=Math.max(100,height-safeTop-safeBottom);dpr=Math.min(window.devicePixelRatio||1,3);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+  const ref=mode.layout==='reference';let s=ref?Math.min(width/CFG.width,ah/CFG.height):Math.min(width/CFG.width,Math.max(.15,(ah-120)/(432+120)));
+  let ch=ref?CFG.height*s:ah;const oy=safeTop+(ah-ch)/2,ox=(width-CFG.width*s)/2,side=CFG.side*s,gap=CFG.gap*s;
+  const center=Math.min(ch-(side*2+gap)/2-20*s,Math.max((side*2+gap)/2+100*s,ch*CFG.boardCenter));
+  const bx=ox+40*s,by=oy+center-(side*2+gap)/2;
+  layout={scale:s,x:ox,y:oy,h:ch,card:side,rects:[{x:bx,y:by,w:side,h:side},{x:bx+side+gap,y:by,w:side,h:side},{x:bx,y:by+side+gap,w:side,h:side},{x:bx+side+gap,y:by+side+gap,w:side,h:side}]};
+  $('swipeSizeInfo').textContent='Kart: '+Math.round(side)+' × '+Math.round(side)+' CSS px · Kaydırma eşiği: '+Math.round(side*mode.threshold)+' px. Kareler ve hareket eşiği aynı ölçeği kullanır.';
+  render();
+ }
+ function panel(kind,reason=''){
+  $('swipeOverlay').hidden=false;const ready=kind==='ready',over=kind==='over';
+  $('swipeHeading').innerHTML=ready?'Oku gör.<br>Kutunun üzerinde kaydır.':over?(watch?'Kayıt gösterimi':score+' PUAN'):'Duraklatıldı';
+  for(const id of ['swipeIntro','swipeSettings','swipeTips','swipeFootnote'])$(id).hidden=!ready;
+  $('swipeReason').hidden=ready;$('swipeReason').textContent=reason||'Sayaçlar ve yönler aynı yerde bekliyor.';
+  $('swipeStats').hidden=!over;
+  if(over){const rate=elapsed>0?(score/elapsed).toFixed(2):'0';$('swipeStats').innerHTML=[[score,'Doğru kaydırma'],[errors,'Yanlış yön'],[elapsed.toFixed(1)+' sn','Oynanan süre'],[rate,'Doğru / saniye']].map(v=>'<div class="sf-stat"><b>'+v[0]+'</b>'+v[1]+'</div>').join('');}
+  $('swipeStart').textContent=ready?'BAŞLA':over?'TEKRAR OYNA':'DEVAM ET';$('swipeWatch').hidden=!ready;$('swipeConfigure').hidden=ready;$('swipePause').hidden=true;
+ }
+ function open(){state='ready';watch=false;manual=false;readSettings();reset();resize();panel('ready');homeBest();}
+ function close(){cancelFrame();clearInput();state='closed';stamp=null;$('swipeGame').classList.remove('show');}
+ function prepare(){state='ready';watch=false;manual=false;readSettings();reset();resize();panel('ready');}
+ function launch(){clearInput();state='countdown';countdown=1;stamp=performance.now();$('swipeOverlay').hidden=true;$('swipePause').hidden=false;render();schedule();}
+ function start(){if(state==='ready'||state==='over'){watch=false;manual=false;readSettings();reset();resize();launch();}else if(state==='paused')launch();}
+ function beginWatch(){readSettings();mode={...mode,mode:'challenge',route:'video',speed:1,guide:false};watch=true;manual=false;reset();resize();launch();}
+ function schedule(){if(!manual&&!raf&&(state==='countdown'||state==='running'))raf=requestAnimationFrame(frame);}
+ function frame(ts){raf=0;if(state!=='running'&&state!=='countdown')return;advance(ts);render();schedule();}
+ function advance(ts){if(stamp===null){stamp=ts;return;}const dt=Math.max(0,(ts-stamp)/1000);stamp=ts;if(dt>.3){pause(false);return;}step(dt);}
+ function energyAdvance(h){
+  // Exact integration of a time-linear drain and a first-order displayed bar.
+  // Rendering lag changes only the visible bar; expiry uses logical energy.
+  for(const c of cells){const r=REF.timer.base[c.index]*(1+REF.timer.growth*clock),k=REF.timer.base[c.index]*REF.timer.growth,tau=REF.timer.tau;
+   const a=Math.exp(-h/tau),old=c.energy,next=old-r*h-.5*k*h*h;
+   c.shown=next+tau*(r+k*h)-k*tau*tau+(c.shown-old-tau*r+k*tau*tau)*a;c.energy=next;
+  }
+ }
+ function expiry(){let soon=Infinity;
+  for(const c of cells){const b=REF.timer.base[c.index],r=b*(1+REF.timer.growth*clock),a=.5*b*REF.timer.growth;const e=Math.max(0,c.energy);const dt=2*e/(r+Math.sqrt(r*r+4*a*e));soon=Math.min(soon,dt);}
+  return soon;
+ }
+ function step(dt){
+  if(state==='countdown'){const used=Math.min(dt,countdown);countdown-=used;dt-=used;if(countdown<=1e-8)state='running';else return;}
+  if(state!=='running'||dt<=0)return;
+  if(mode.mode==='untimed'){elapsed+=dt;clock+=dt;return;}
+  let left=dt*mode.speed;
+  while(left>1e-10&&state==='running'){
+   // Split exactly at recorded event times only in the clearly labelled watch mode.
+   if(watch&&watchIndex<REF.events.length&&REF.events[watchIndex].t<=clock+1e-8){const e=REF.events[watchIndex++];accept(e.tile,e.before,true);continue;}
+   const toEvent=watch&&watchIndex<REF.events.length?Math.max(0,REF.events[watchIndex].t-clock):Infinity;
+   const untilDead=expiry();const h=Math.min(left,untilDead,toEvent);
+   if(h>1e-10){energyAdvance(h);clock+=h;elapsed+=h/mode.speed;left-=h;}
+   if(untilDead<=h+1e-8){missed=cells.reduce((a,c,i)=>c.energy<cells[a].energy?i:a,0);cells[missed].energy=0;finish(names[missed]+' kartının süresi bitti.');break;}
+   if(h<=1e-10&&toEvent>1e-8)break;
+  }
+ }
+ function accept(index,dir,fromWatch=false){
+  if(state!=='running'||(watch&&!fromWatch))return false;
+  const c=cells[index];if(!c||!['R','U','L','D'].includes(dir))return false;
+  if(dir!==c.dir){errors++;c.wrong=clock;notice='Yanlış yön · ok yönüne kaydır';noticeUntil=clock+1.1;return false;}
+  score++;c.energy=Math.min(1,c.energy+REF.timer.bonus);c.turn++;c.flash=clock;
+  const seq=REF.sequences[index];if(mode.route==='video'&&c.turn<seq.length)c.dir=seq[c.turn];else{c.dir=['R','U','L','D'][Math.floor(random()*4)];recordedOnly=false;}
+  correctTimes.push(elapsed);if(correctTimes.length>400)correctTimes.shift();return true;
+ }
+ function finish(reason){if(state!=='running')return;state='over';cancelFrame();clearInput();
+  if(eligible()&&score>best){best=score;storage.set(CFG.key,best);homeBest();}
+  if(watch)reason+='\nBu gösterim kayıttan çıkarılan hareketleri modelde oynatır; senin rekoruna yazılmaz.';
+  else if(mode.mode==='challenge')reason+='\n'+(eligible()?'1× kayıt provası rekoru: '+best:'Bu çalışma ayrı ayardadır; 1× kayıt rekoruna yazılmaz.');
+  panel('over',reason);render();
+ }
+ function pause(first=true){if(state!=='running'&&state!=='countdown')return;if(first&&!manual)advance(performance.now());if(state!=='running'&&state!=='countdown')return;prior=state;state='paused';cancelFrame();clearInput();stamp=null;panel('paused');render();}
+ function point(e){const b=canvas.getBoundingClientRect();return{x:e.clientX-b.left,y:e.clientY-b.top};}
+ function findCard(p){return layout.rects.findIndex(r=>p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h);}
+ function down(id,p){if(state!=='running'||watch)return;if(!manual)advance(performance.now());if(state!=='running')return;const i=findCard(p);if(i<0||locks.has(i))return;locks.set(i,id);pointers.set(id,{i,x:p.x,y:p.y,used:false});}
+ function move(id,p){const a=pointers.get(id);if(!a||a.used||state!=='running'||watch)return;
+  const dx=p.x-a.x,dy=p.y-a.y,ax=Math.abs(dx),ay=Math.abs(dy);if(Math.max(ax,ay)<layout.card*mode.threshold)return;
+  let dir=null;if(ax>=ay*CFG.axisRatio)dir=dx>0?'R':'L';else if(ay>=ax*CFG.axisRatio)dir=dy>0?'D':'U';if(!dir)return;
+  a.used=true;if(!manual)advance(performance.now());if(state==='running')accept(a.i,dir);render();
+ }
+ function up(id,p,abort=false){if(!abort)move(id,p);const a=pointers.get(id);if(a){locks.delete(a.i);pointers.delete(id);} }
+ function prevent(e){e.preventDefault();}
+ if(window.PointerEvent){
+  canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;prevent(e);down(e.pointerId,point(e));if(pointers.has(e.pointerId))try{canvas.setPointerCapture(e.pointerId);}catch(_){}},{passive:false});
+  canvas.addEventListener('pointermove',e=>{if(pointers.has(e.pointerId)){prevent(e);move(e.pointerId,point(e));}},{passive:false});
+  canvas.addEventListener('pointerup',e=>{prevent(e);up(e.pointerId,point(e));try{if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);}catch(_){}},{passive:false});
+  canvas.addEventListener('pointercancel',e=>up(e.pointerId,point(e),true));canvas.addEventListener('lostpointercapture',e=>up(e.pointerId,point(e),true));
+ }else{
+  canvas.addEventListener('touchstart',e=>{prevent(e);for(const t of e.changedTouches)down(t.identifier,point(t));},{passive:false});
+  canvas.addEventListener('touchmove',e=>{prevent(e);for(const t of e.changedTouches)move(t.identifier,point(t));},{passive:false});
+  for(const ev of ['touchend','touchcancel'])canvas.addEventListener(ev,e=>{prevent(e);for(const t of e.changedTouches)up(t.identifier,point(t),ev==='touchcancel');},{passive:false});
+  if(!('ontouchstart'in window)){canvas.addEventListener('mousedown',e=>{if(e.button===0)down(-1,point(e));});window.addEventListener('mousemove',e=>move(-1,point(e)));window.addEventListener('mouseup',e=>up(-1,point(e)));}
+ }
+ canvas.addEventListener('contextmenu',prevent);
+ function round(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fill();}
+ function txt(str,x,y,size,color='#fff',weight=750){ctx.fillStyle=color;ctx.font=weight+' '+size+'px -apple-system,BlinkMacSystemFont,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(str,x,y);}
+ function glyph(n,x,y,size){const str=String(n);let total=0;for(const ch of str)total+=SCORE_GLYPHS[ch].w;const s=size/740;ctx.save();ctx.translate(x-total*s*1.12/2,y+size/2);ctx.scale(s*1.12,-s);ctx.fillStyle='#fff';for(const ch of str){const g=SCORE_GLYPHS[ch];ctx.fill(new Path2D(g.d));ctx.translate(g.w,0);}ctx.restore();}
+ function arrow(dir,x,y,s){const rot={R:0,D:Math.PI/2,L:Math.PI,U:-Math.PI/2}[dir];ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s,s);ctx.fillStyle='#fff';ctx.beginPath();const pts=[[-29,-6],[7,-6],[-3,-17],[5,-25],[29,0],[5,25],[-3,17],[7,6],[-29,6]];pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fill();ctx.restore();}
+ function render(){if(state==='closed'||!ctx||!cells.length)return;ctx.setTransform(dpr,0,0,dpr,0,0);
+  const s=layout.scale,ox=layout.x,oy=layout.y,ch=layout.h;
+  const bg=ctx.createLinearGradient(0,oy,0,oy+ch);bg.addColorStop(0,'#74299e');bg.addColorStop(1,'#9232c8');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
+  const ranks=[['SEN',score+' puan','#9a80ea'],['EN',best+' puan','#8789d1'],['71','Video skoru','#d56e98'],[mode.mode==='untimed'?'∞':mode.speed.toFixed(2)+'×','Tempo','#a181dd']];
+  ranks.forEach((v,i)=>{const x=ox+(126+i*84)*s,y=oy+46*s;ctx.fillStyle=v[2];ctx.beginPath();ctx.arc(x,y,29*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffffff44';ctx.lineWidth=2*s;ctx.stroke();txt(v[0],x,y,17*s,'#21142d',850);round(x-36*s,y+21*s,72*s,25*s,9*s,'#e2d3ee');txt(v[1],x,y+34*s,11*s,'#3d1948',750);});
+  round(ox+106*s,oy+2*s,40*s,29*s,8*s,'#ffdc57');txt('SEN',ox+126*s,oy+17*s,13*s,'#271a1d',900);
+  const badge=watch?'Kayıt gösterimi · puansız':mode.mode==='untimed'?'Süresiz yön çalışması':mode.route==='random'?'Rastgele yönler':recordedOnly?'Kayıttaki kart dizileri':'Kayıt sonrası · üretilmiş yönler';
+  round(ox+96*s,oy+107*s,320*s,32*s,16*s,watch?'#61466b':'#4e176e');txt(badge,ox+256*s,oy+124*s,12*s,'#eadfee',700);
+  glyph(score,ox+256*s,oy+ch*CFG.scoreCenter,54*s);
+  let urgent=-1;if(mode.guide&&mode.mode==='challenge'){let shortest=Infinity;cells.forEach((c,i)=>{const remain=Math.max(0,c.energy)/(REF.timer.base[i]*(1+REF.timer.growth*clock));if(remain<shortest){shortest=remain;urgent=i;}});}
+  for(let i=0;i<4;i++){const c=cells[i],base=layout.rects[i],a=clock-c.wrong;let dx=a>=0&&a<.23?Math.sin(a*80)*3*s*(1-a/.23):0;const r={...base,x:base.x+dx},radius=24*s;
+   ctx.save();ctx.shadowColor='#3c154840';ctx.shadowBlur=5*s;ctx.shadowOffsetY=5*s;round(r.x,r.y,r.w,r.h,radius,'#78329b');ctx.restore();
+   ctx.save();ctx.beginPath();if(ctx.roundRect)ctx.roundRect(r.x,r.y,r.w,r.h,radius);else ctx.rect(r.x,r.y,r.w,r.h);ctx.clip();
+   const f=mode.mode==='untimed'?1:Math.max(0,Math.min(1,c.shown));let col=f<.15?'#ff6b32':f<.35?'#ffb100':'#1aa3df';
+   ctx.fillStyle=col;ctx.fillRect(r.x,r.y+r.h-10*s,r.w*f,10*s);
+   const body=ctx.createLinearGradient(0,oy,0,oy+ch);body.addColorStop(0,'#8740b4');body.addColorStop(1,'#9746c6');ctx.fillStyle=body;ctx.fillRect(r.x,r.y,r.w,r.h-10*s);
+   const flash=clock-c.flash;if(flash>=0&&flash<.13){ctx.fillStyle='rgba(255,255,255,'+(.06*(1-flash/.13))+')';ctx.fillRect(r.x,r.y,r.w,r.h-10*s);}
+   arrow(c.dir,r.x+r.w/2,r.y+r.h/2,s);ctx.restore();
+   if(urgent===i||missed===i){ctx.strokeStyle=missed===i?'#ff8670':'#ffe76b';ctx.lineWidth=2.5*s;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(r.x+2*s,r.y+2*s,r.w-4*s,r.h-4*s,22*s);else ctx.rect(r.x,r.y,r.w,r.h);ctx.stroke();}
+  }
+  if(notice&&clock<noticeUntil)txt(notice,ox+256*s,Math.min(oy+ch-22*s,layout.rects[2].y+layout.card+37*s),12*s,'#ffe4a7');
+  if(state==='countdown'){round(ox+156*s,oy+ch*.61,200*s,70*s,18*s,'#310b4be8');txt(countdown>.35?'HAZIR':'BAŞLA',ox+256*s,oy+ch*.61+35*s,25*s,'#fff',900);}
+  if(mode.guide&&mode.mode==='challenge'&&state==='running')txt('Sarı çerçeve: en az zamanı kalan kart',ox+256*s,oy+ch-18*s,10*s,'#edc8ff',650);
+  if(score!==lastDrawnScore){$('swipeAccessible').textContent=score+' puan';lastDrawnScore=score;}
+ }
+ $('swipeStart').addEventListener('click',start);$('swipeConfigure').addEventListener('click',prepare);$('swipeWatch').addEventListener('click',beginWatch);$('swipePause').addEventListener('click',()=>pause());$('swipeExit').addEventListener('click',()=>{close();goHome();});
+ for(const id of ['swipeMode','swipeRoute','swipeSpeed','swipeLayout','swipeGuide','swipeThreshold'])$(id).addEventListener('change',()=>{if(state==='ready'){readSettings();reset();resize();}});
+ function onResize(){if(state==='closed')return;const r=canvas.getBoundingClientRect();if(Math.abs(r.width-width)>.5||Math.abs(r.height-height)>.5){pause(false);resize();}}
+ window.addEventListener('resize',onResize);if(window.visualViewport)visualViewport.addEventListener('resize',onResize);if(window.ResizeObserver)new ResizeObserver(onResize).observe($('swipeGame'));
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(false);});window.addEventListener('blur',()=>pause(false));
+ document.addEventListener('keydown',e=>{if(state==='closed'||e.repeat)return;if(e.code==='Escape'){e.preventDefault();if(state==='paused')start();else pause();}else if((e.code==='Enter'||e.code==='Space')&&state!=='running'){e.preventDefault();start();}});
+ homeBest();
+ if(new URLSearchParams(location.search).has('test'))window.__swipeTest={
+  cfg:()=>({...CFG,timer:REF.timer}),source:()=>JSON.parse(JSON.stringify(REF)),
+  start:(options={})=>{state='ready';mode={mode:'challenge',route:'video',speed:1,layout:'screen',guide:false,threshold:.1,...options};watch=!!options.watch;manual=true;reset();resize();state='running';$('swipeOverlay').hidden=true;render();},
+  step:dt=>{step(dt);render();},accept:(i,d)=>{const ok=accept(i,d);render();return ok;},
+  down,move,up,pause:()=>pause(false),resume:()=>{state='running';$('swipeOverlay').hidden=true;},close,render,
+  snapshot:()=>({state,score,errors,clock,elapsed,cells:cells.map(c=>({...c})),watch,recordedOnly,raf:!!raf,pointers:pointers.size,locks:locks.size,layout:JSON.parse(JSON.stringify(layout)),width,height,missed}),
+  replay:(fps=60)=>{state='ready';mode={mode:'challenge',route:'video',speed:1,layout:'screen',guide:false,threshold:.1};watch=true;manual=true;reset();resize();state='running';$('swipeOverlay').hidden=true;while(state==='running'&&elapsed<30)step(1/fps);render();return {state,score,elapsed,clock,cells:cells.map(c=>({...c})),missed};}
+ };
+ return {open,close,pause,getBest:()=>best};
+})();
+window.openSwipeFast=function(){goHome();home.style.display='none';document.getElementById('swipeGame').classList.add('show');SwipeFast.open();};
+// Wrappers change only menu lifecycle, never another game's engine body.
+for(const key of ['goHome','openReact','openZig','openPiano','openChicken','openJetpack']){const original=window[key];window[key]=function(...args){SwipeFast.close();return original.apply(this,args);};}
+
+</script>
+</body></html>
