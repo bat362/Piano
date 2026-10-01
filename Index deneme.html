@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0754d5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Memory Prova">
+<meta name="hub-build" content="MEM-V1-001">
+<title>Memory · Bağımsız Antrenman</title>
+<style>
+:root{color-scheme:dark;--bg:#061b41;--ink:#f8fcff;--dim:#b5ccec;--line:#ffffff20;--mint:#8cebdd;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible{outline:3px solid #bbf8d0;outline-offset:3px}button:disabled{cursor:default;opacity:.55}
+[hidden]{display:none!important}a{color:#b6e8ff}button,input,select{touch-action:manipulation}
+#home{min-height:100vh;min-height:100dvh;padding:max(25px,var(--safe-top)) 20px max(22px,var(--safe-bottom));background:radial-gradient(ellipse at 90% 0%,#1264bb65,transparent 50%),var(--bg)}
+.home-inner{max-width:490px;margin:0 auto}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:850;color:#8fc5f2}.brand{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:13px 0 8px}
+h1{margin:0;font-size:48px;line-height:1.04;letter-spacing:-2px;font-weight:900}.brand-mark{display:grid;grid-template-columns:repeat(2,27px);gap:5px;transform:rotate(7deg)}.brand-mark span{height:27px;border-radius:7px;background:#2d80c6;display:grid;place-items:center;font-size:14px;font-weight:850}.brand-mark span:first-child{background:#eb44c5}.brand-mark span:nth-child(2){background:#8c53ee}.brand-mark span:last-child{background:#82e2d9;color:#064c62}
+.lead{font-size:14px;line-height:1.6;color:#cadbef;margin:12px 0 20px}.lead strong{color:white}.record{display:flex;justify-content:space-between;align-items:center;background:#12325a;padding:12px 15px;border:1px solid var(--line);border-radius:14px;margin-bottom:20px;font-size:12px;color:#c1d6ee}.record b{font-size:24px;color:white;font-variant-numeric:tabular-nums}
+.settings{padding:18px;border:1px solid var(--line);border-radius:21px;background:#09274a}.settings h2{font-size:15px;margin:0 0 16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}.field{display:flex;flex-direction:column;gap:6px;font-size:11px;color:#b9d0e9}.field select{width:100%;min-height:45px;border:1px solid #ffffff29;border-radius:10px;padding:9px 7px;background:#153960;color:white;font-size:13px}.field.full{grid-column:1/-1}.option{display:flex;gap:9px;align-items:center;font-size:12px;line-height:1.5;color:#cfdfef;margin-top:13px}.option input{width:19px;height:19px;accent-color:#8de5d4;flex-shrink:0}
+.primary{width:100%;min-height:52px;padding:14px;border:0;border-radius:14px;background:#a4efdd;color:#07374b;font-size:16px;font-weight:900}.home-start{margin-top:18px;box-shadow:0 5px 0 #397b79}.muted{font-size:11px;line-height:1.6;color:#97b3d0}.source-note{font-size:10px;line-height:1.55;color:#91aecb;margin:16px 0 0}.advanced{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.advanced summary{font-size:12px;font-weight:700;color:#bcdbf4;cursor:pointer}.advanced .field{margin-top:12px}details p{font-size:12px;line-height:1.6;color:#c2d6eb}.build{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:21px;font-size:10px;line-height:1.7;color:#799cbd}.build button{border:1px solid var(--line);background:#ffffff0c;border-radius:9px;padding:9px 12px;color:#bfd9ef;font-size:11px}.warning{background:#715729;padding:12px;border-radius:12px;font-size:12px;margin-top:16px}.saved-note{display:none;font-size:10px;color:#edd4a1;margin-top:10px}#errorBox{background:#711f33;color:#fff;padding:14px;white-space:pre-wrap;font-size:12px;border-radius:12px}
+/* A square-cell, perspective-free board. Camera shake/angle from the source is not reproduced. */
+#game{position:fixed;inset:0;min-height:100vh;height:100dvh;background:radial-gradient(ellipse at 20% 5%,#0868f0 0%,transparent 68%),linear-gradient(145deg,#0051d9,#054493);overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none}
+#stage{position:absolute;top:var(--safe-top);right:0;bottom:var(--safe-bottom);left:0;overflow:hidden;--cell:52px;--gap:8px;--font:25px;--score-size:55px;--ui-scale:1}
+.tools{position:absolute;z-index:8;left:13px;right:13px;top:max(12px,var(--safe-top));display:flex;justify-content:space-between;pointer-events:none}.tools button{pointer-events:auto;border:1px solid #ffffff20;border-radius:50%;background:#0022545e;color:#fff;width:36px;height:36px;padding:0;font-size:22px;display:grid;place-items:center}
+#hud{position:absolute;left:0;right:0;top:0;height:40%;text-align:center;pointer-events:none}.players{position:absolute;top:18%;width:100%;display:flex;align-items:center;justify-content:center;gap:9px}.player{display:flex;flex-direction:column;align-items:center;font-size:9px}.player .avatar{width:43px;height:43px;border-radius:50%;background:#edfaff;color:#164ba0;display:grid;place-items:center;font-size:13px;font-weight:900;box-shadow:0 3px 0 #003a9390}.player small{margin-top:2px;border-radius:6px;background:#effaff;color:#295087;padding:2px 5px;font-size:8px}.player.ref .avatar{background:#c9eeff}
+#badge{position:absolute;left:50%;transform:translateX(-50%);top:43%;padding:5px 12px;border-radius:99px;background:#52b5d7b8;font-size:10px;color:#eaffff;white-space:nowrap;font-weight:750}#timerTrack{position:absolute;top:58%;left:26%;width:48%;height:13px;border-radius:99px;background:#003984a8;overflow:hidden}#timerFill{display:block;height:100%;width:100%;background:#9beccb;transform-origin:left center;will-change:transform;box-shadow:inset 0 1px 1px #ffffff55}#timerText{position:absolute;top:calc(58% + 18px);width:100%;font-size:10px;color:#e0ffff;font-variant-numeric:tabular-nums}#score{position:absolute;top:65%;width:100%;font-size:var(--score-size);line-height:1;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-shadow:0 2px #124fab}
+#board{position:absolute;display:grid;grid-template-columns:repeat(4,var(--cell));grid-template-rows:repeat(6,var(--cell));gap:var(--gap);touch-action:none}
+.tile{appearance:none;-webkit-appearance:none;display:grid;place-items:center;border:0;padding:0;border-radius:calc(var(--cell) * .115);background:var(--tile-color);width:var(--cell);height:var(--cell);color:#fff;font-size:var(--font);line-height:1;font-weight:900;box-shadow:0 2px 0 #002f6960,inset 0 1px 0 #ffffff22;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;outline-offset:2px;font-variant-numeric:tabular-nums}
+.tile.hidden-number{background:#f3fcfc;box-shadow:0 2px 0 #002e6560,inset 0 1px #fff}.tile.hidden-number .digit{visibility:hidden}.tile.correct{box-shadow:0 2px 0 #002f6950}.tile.next-hint{outline:2px solid #fff;outline-offset:3px}.tile.bad{outline:4px solid #ff405e;outline-offset:3px}.tile.answer{outline:4px solid #adffd0;outline-offset:3px}.tile.ghost .digit{visibility:visible;opacity:.14}.tile:active{filter:brightness(1.06)}
+#status{position:absolute;left:15px;right:15px;bottom:5.6%;text-align:center;font-size:12px;line-height:1.5;color:#e4f5ff;min-height:36px;pointer-events:none}#practiceTools{position:absolute;bottom:1.3%;left:15px;right:15px;display:flex;gap:8px;justify-content:center}#practiceTools button{border:1px solid #ffffff30;background:#0036798c;color:#e8fbff;padding:9px 13px;border-radius:99px;font-size:11px;font-weight:700}.hud-small{position:absolute;bottom:1.2%;left:10px;right:10px;color:#aad3f4;font-size:9px;text-align:center;pointer-events:none}
+#veil{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:#023e9c;color:white;font-size:60px;font-weight:900}#veil span{display:block;text-align:center}#veil small{display:block;font-size:13px;letter-spacing:1px;margin-top:18px;text-align:center}
+#overlay{position:absolute;inset:0;z-index:10;background:#03172fe8;display:flex;align-items:center;justify-content:center;padding:max(65px,var(--safe-top)) 17px max(20px,var(--safe-bottom));overflow:auto;touch-action:pan-y}.sheet{width:min(440px,100%);border-radius:22px;border:1px solid #ffffff25;background:#0a2b51;padding:22px;max-height:100%;overflow:auto;touch-action:pan-y}.sheet .eyebrow{color:#8debd8;letter-spacing:1.3px}.sheet h2{font-size:36px;margin:10px 0 12px;letter-spacing:-1px}.sheet p{font-size:13px;line-height:1.6;color:#c4d6ec;white-space:pre-line}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.result-grid div{background:#ffffff09;border-radius:11px;padding:11px;color:#a6c2dd;font-size:10px}.result-grid b{display:block;color:#fff;font-size:22px;font-variant-numeric:tabular-nums;margin-bottom:3px}.secondary{margin-top:10px;background:#194775;color:#e9f6ff}.tertiary{margin-top:5px;background:transparent;color:#a5cce8;min-height:40px;font-size:12px}.status-pill{display:inline-block;background:#1c6b7780;color:#b4efe4!important;border-radius:99px;padding:4px 9px;font-size:10px!important;margin:0!important}
+#reviewTop{position:absolute;z-index:9;left:15px;right:15px;top:8px;text-align:center;background:#07284bf2;border:1px solid #ffffff25;border-radius:14px;padding:12px}.review-buttons{display:flex;gap:8px;margin-top:10px}.review-buttons button{flex:1;border:0;border-radius:9px;padding:10px 7px;font-size:12px;font-weight:800;background:#96ebd8;color:#073650}#reviewText{font-size:12px;line-height:1.5;color:#d6e8fa}
+@media(max-height:700px){#home{padding-top:max(18px,var(--safe-top))}h1{font-size:40px}.lead{font-size:13px;margin:10px 0 15px}.settings{padding:15px}.sheet{padding:17px}.sheet h2{font-size:30px}.players .avatar{width:34px;height:34px;font-size:11px}.players small{font-size:7px}#badge{font-size:9px;padding:4px 9px}#status{font-size:10px}}
+@media(orientation:landscape) and (max-height:560px){#hud{width:27%;height:100%;left:2%}.players{top:17%}#badge{top:40%;font-size:8px}#timerTrack{top:49%;left:10%;width:80%}#timerText{top:calc(49% + 18px)}#score{top:65%;font-size:44px}#status{left:auto;width:28%;right:1%;bottom:17%;font-size:10px}#practiceTools{left:71%;right:5px;bottom:4%;flex-direction:column}.hud-small{width:28%;left:auto;right:1%;bottom:6%;font-size:8px}}
+</style>
+</head>
+<body>
+<main id="home"><div class="home-inner">
+ <div class="eyebrow">BAĞIMSIZ ANTRENMAN · MEMORY V1</div>
+ <div class="brand"><h1>Memory</h1><div class="brand-mark" aria-hidden="true"><span>1</span><span>2</span><span></span><span>3</span></div></div>
+ <p class="lead"><strong>Sırayı gör. Yerleri hatırla.</strong><br>1’e dokununca diğer sayılar kapanır. Kutuları <strong>1 → 2 → 3…</strong> sırasıyla bul. Ezberlerken de süre işler.</p>
+ <div class="record"><span>1× kayıt provası · yerel rekor</span><b id="homeBest">0</b></div>
+ <section class="settings" aria-label="Prova ayarları">
+  <h2>Çalışmanı seç</h2>
+  <div class="fields">
+   <label class="field">Mod<select id="mode"><option value="challenge">Süreli prova</option><option value="learn">Süresiz öğrenme</option><option value="workshop">Tur atölyesi · tekrar</option></select></label>
+   <label class="field">Yerleşim<select id="route"><option value="video">Kayıttaki 12 tur</option><option value="random">Rastgele kutular</option></select></label>
+   <label class="field">Başlangıç turu<select id="startRound"></select></label>
+   <label class="field">Sayaç akışı<select id="tempo"><option value="1">1,00× · kayıt modeli</option><option value="0.75">0,75× · rahat çalışma</option><option value="1.25">1,25× · zor çalışma</option></select></label>
+  </div>
+  <details class="advanced"><summary>Boyut, rehber ve ölçüm sınırları</summary>
+   <label class="field">Kutu boyutu<select id="size"><option value="reference">Video oranı · kare kutular</option><option value="large">Büyük kutular · çalışma</option></select></label>
+   <label class="option"><input id="guide" type="checkbox">Sıradaki kutuyu çerçevele · yardımcı prova</label>
+   <label class="option"><input id="seconds" type="checkbox">Sayaçta yaklaşık saniyeyi göster</label>
+   <p>İlk 12 yerleşim videodan çıkarıldı. Sayılar ilk doğru dokunuşta gizlenir; doğru bulunanlar görünür kalır. Tur bitince daha uzun yeni bir tur başlar.</p>
+   <p><strong>Süre sınırları yaklaşık:</strong> Çubuk eğimlerinden çıkarıldı; ilk 3 sayılı turun süresi komşu turlardan kestirildi. Bu, orijinal uygulamanın kaynak kodu veya kesin süre formülü değildir. Kamera perspektifi ve cihaz dokunma gecikmesi birebir doğrulanmadı.</p>
+   <p>12. turun sonrası açıkça etiketlenmiş, üretilmiş çalışmadır. Tek dokunuş tek puan verir. Yanlış kutu bu trainer’da hata sayılır; boş alana dokunmak sayılmaz. Yardımlı çalışmalar ayrı tutulur.</p>
+  </details>
+  <button id="start" class="primary home-start" type="button">PROVAYA BAŞLA</button>
+ </section>
+ <details class="advanced"><summary>Üç pratik ipucu</summary>
+  <p><strong>1’e hemen dokunma.</strong> Önce en azından 1–2–3 ve 4–5–6 gibi kısa konum gruplarını oku. İlk dokunuş, hatırlama aşamasına geçişindir.</p>
+  <p><strong>Renge değil konuma yaslan.</strong> Kapandığında renk bilgisi kaybolur. “Sol alt → üst orta → sağ alt” gibi küçük rotalar kur.</p>
+  <p><strong>Ezber süresini de bütçele.</strong> Aynı sayaç hem bakarken hem cevaplarken işler. Süresiz modda doğruluğu öğren, sonra süreli provaya geç. İlk turları ezberledikten sonra rastgele yerleşimi dene.</p>
+ </details>
+ <p class="source-note">Yalnızca Memory içerir. Trace ve diğer oyunların dosyalarını değiştirmez. Resmî Playus uygulaması değildir; hiçbir hesaba bağlanmaz, dışarıya skor veya veri göndermez.</p>
+ <div class="build"><span>MEMORY V1<br>MEM-V1-001</span><button id="reload" type="button">Sürümü yenile</button></div>
+ <div id="storageNote" class="saved-note">Bu tarayıcı yerel kayda izin vermiyor. Oyun çalışır; rekor kalıcı olmayabilir.</div>
+ <div id="boot" class="warning">Kod henüz çalışmadı. Dosya önizlemesi yerine yayımladığın web sayfasından aç.</div>
+ <pre id="errorBox" hidden></pre>
+</div></main>
+<section id="game" hidden aria-label="Memory oyun alanı">
+ <div class="tools"><button id="exit" aria-label="Ayarları aç" type="button">‹</button><button id="pause" aria-label="Duraklat" type="button">Ⅱ</button></div>
+ <div id="stage">
+  <header id="hud">
+   <div class="players" aria-label="Yerel antrenman göstergeleri; çevrimiçi sıralama değildir"><div class="player"><div class="avatar">SEN</div><small id="liveLabel">0 puan</small></div><div class="player ref"><div class="avatar">100</div><small>Video skoru</small></div></div>
+   <div id="badge">Kayıttaki yerleşim</div>
+   <div id="timerTrack" role="progressbar" aria-label="Turda kalan süre" aria-valuemin="0" aria-valuemax="100"><span id="timerFill"></span></div>
+   <div id="timerText" hidden></div>
+   <div id="score" aria-live="off">0</div>
+  </header>
+  <div id="board" aria-label="Dört sütun, altı satır"></div>
+  <div id="status"></div>
+  <div id="practiceTools" hidden><button id="peek" type="button">Sayıları 1 sn göster</button><button id="repeat" type="button">Bu turu yinele</button></div>
+  <div class="hud-small" id="footer">MEMORY V1 · bağımsız prova</div>
+ </div>
+ <div id="veil" hidden><div><span id="count">3</span><small>HAZIR OL</small></div></div>
+ <div id="reviewTop" hidden><div id="reviewText"></div><div class="review-buttons"><button id="reviewReturn" type="button">SONUCA DÖN</button><button id="reviewRetry" type="button">BU TURU ÇALIŞ</button></div></div>
+ <div id="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="sheet">
+  <div class="eyebrow" id="dialogKicker">TUR SONU</div><h2 id="dialogTitle">0 puan</h2><p id="dialogBody"></p>
+  <div class="result-grid" id="results"></div><p class="status-pill" id="recordNote"></p>
+  <button class="primary" id="dialogContinue" type="button">TEKRAR OYNA</button>
+  <button class="primary secondary" id="review" type="button">HATAYI VE DOĞRU SIRAYI GÖR</button>
+  <button class="primary tertiary" id="toHome" type="button">AYARLARA DÖN</button>
+ </div></div>
+</section>
+<script>
+/* MEMORY V1 — local practice reconstruction from a user-provided recording.
+   No external dependencies, network, video player, login, score submission or app control.
+   Timing fits are approximate; see MODEL_NOTES and the bundled measurement notes. */
+(() => {
+ 'use strict';
+ const BUILD='MEM-V1-001', KEY='memorySolo.v1.videoBest';
+ const SOURCE={"name":"Memory 100 puan · yüklenen video","fps":30,"width":512,"height":910,"duration":111.233333,"rounds":[[[2,5],[3,5],[0,3]],[[1,1],[2,4],[1,3],[2,1]],[[0,5],[1,1],[1,4],[3,5],[3,1]],[[3,5],[1,3],[0,5],[1,4],[2,0],[3,4]],[[0,3],[3,5],[0,5],[3,2],[1,1],[2,0],[3,1]],[[0,3],[3,4],[2,1],[0,0],[1,1],[2,4],[3,5],[3,2]],[[1,1],[2,0],[3,5],[3,4],[0,0],[1,4],[2,1],[1,0],[1,5]],[[0,1],[1,4],[1,2],[3,3],[0,0],[2,2],[0,4],[2,0],[1,5],[3,4]],[[1,0],[3,5],[0,1],[2,0],[1,5],[1,3],[0,0],[1,4],[3,3],[3,0],[2,1]],[[2,5],[2,2],[3,2],[3,4],[1,2],[1,5],[3,5],[1,1],[0,1],[3,1],[0,5],[1,3]],[[1,0],[2,1],[1,5],[1,2],[2,4],[0,4],[3,0],[2,3],[3,4],[1,1],[3,1],[2,0],[0,3]],[[0,2],[0,4],[2,0],[1,0],[1,1],[1,3],[1,2],[0,1],[2,5],[2,3],[3,1],[2,4],[2,2],[3,3]]],"budgets":[12.5,14.2,15.6,17.2,18.7,20.5,22.0,23.4,24.8,26.5,27.8,28.9],"previewTimes":[4.9,6.5,9.5,15.5,20.2,26,33,44,52.2,65.5,76.2,91.4]};
+ const PALETTE=['#f438cb','#a34afa','#62dceb','#7debf1','#49d2e4','#f4c358','#ff7a86','#64e7be','#8064eb','#fa967b','#a1f0f1','#eee772','#ed47ba','#58d9e8','#82c5fa','#db8be6','#4ec2bd','#f5b788','#a8d562','#fa82a5','#688bec','#eec466','#62e0e5','#dc6cd5'];
+ const $=id=>document.getElementById(id);
+ const board=$('board'),stage=$('stage'),tileEls=new Map();
+ let best=0,storageOK=true,raf=0,last=0,manual=false,seed=1,peekUntil=0,previousPhase='preview',reviewing=false,lastPointerAt=-1e9;
+ let cfg={mode:'challenge',route:'video',start:0,tempo:1,size:'reference',guide:false,seconds:false};
+ let s={phase:'idle',round:0,n:3,score:0,next:1,base:0,remaining:0,budget:0,roundTime:0,totalTime:0,phaseTime:0,correct:[],cells:[],error:null,assisted:false,mistakes:0,completed:0};
+ const MODEL_NOTES={firstRound:'12.5s is extrapolated, not a reliable direct fit',timing:'Per-round budgets inferred from bar slopes, rounded to 0.1s',hide:'After first correct tap',tail:'Generated practice, not a recovered Playus level',touch:'One pointerdown per tap, visible square only'};
+ function readBest(){try{const x=Number(localStorage.getItem(KEY));return Number.isFinite(x)&&x>=0?x:0;}catch(_){storageOK=false;return 0;}}
+ function saveBest(){try{localStorage.setItem(KEY,String(best));}catch(_){storageOK=false;}showBest();}
+ function showBest(){$('homeBest').textContent=String(best);$('storageNote').style.display=storageOK?'none':'block';}
+ function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}
+ function budgetFor(n){return SOURCE.budgets[n-3]??Math.min(45,8+1.5*n);}
+ function layoutFor(round){const n=Math.min(24,round+3);if(cfg.route==='video'&&round<SOURCE.rounds.length)return SOURCE.rounds[round].map(c=>c.slice());const positions=Array.from({length:24},(_,i)=>[i%4,Math.floor(i/4)]);for(let i=23;i>0;i--){const j=Math.floor(rand()*(i+1));[positions[i],positions[j]]=[positions[j],positions[i]];}return positions.slice(0,n);}
+ function getSettings(){
+  const tempo=Number($('tempo').value),start=Number($('startRound').value);
+  return {mode:['challenge','learn','workshop'].includes($('mode').value)?$('mode').value:'challenge',route:$('route').value==='random'?'random':'video',start:Number.isInteger(start)&&start>=0&&start<12?start:0,tempo:[.75,1,1.25].includes(tempo)?tempo:1,size:$('size').value==='large'?'large':'reference',guide:$('guide').checked,seconds:$('seconds').checked};
+ }
+ function eligible(){return cfg.mode==='challenge'&&cfg.route==='video'&&cfg.start===0&&cfg.tempo===1&&!cfg.guide&&!s.assisted&&!manual;}
+ function timed(){return cfg.mode!=='learn';}
+ function cancel(){if(raf)cancelAnimationFrame(raf);raf=0;}
+ function schedule(){if(!manual&&!raf&&['countdown','preview','recall','transition'].includes(s.phase))raf=requestAnimationFrame(frame);}
+ function tickTo(now){if(!last){last=now;return;}const dt=Math.max(0,(now-last)/1000);last=now;if(dt>.5){pause(false);return;}step(dt);}
+ function frame(now){raf=0;tickTo(now);renderTimer();schedule();}
+ function begin(options=null){
+  cancel();manual=false;cfg=options?{...cfg,...options}:getSettings();seed=cfg.route==='video'?42713:Math.floor(Math.random()*4294967295);
+  s={phase:'countdown',round:cfg.start,n:Math.min(24,cfg.start+3),score:0,next:1,base:0,remaining:0,budget:0,roundTime:0,totalTime:0,phaseTime:.75,correct:[],cells:[],error:null,assisted:cfg.guide,mistakes:0,completed:0};
+  reviewing=false;peekUntil=0;board.replaceChildren();tileEls.clear();$('home').hidden=true;$('game').hidden=false;$('overlay').hidden=true;$('reviewTop').hidden=true;$('veil').hidden=false;$('pause').hidden=false;last=performance.now();resize();render();schedule();
+ }
+ function loadRound(round,reuse=null){
+  s.round=round;s.n=Math.min(24,round+3);s.cells=reuse?reuse.map(c=>c.slice()):layoutFor(round);s.base=s.score;s.next=1;s.correct=[];s.budget=budgetFor(s.n);s.remaining=s.budget;s.roundTime=0;s.error=null;s.phase='preview';peekUntil=0;
+  board.replaceChildren();tileEls.clear();
+  s.cells.forEach((pos,i)=>{const number=i+1,b=document.createElement('button');b.type='button';b.id='tile-'+number;b.className='tile';b.style.gridColumn=String(pos[0]+1);b.style.gridRow=String(pos[1]+1);b.style.setProperty('--tile-color',PALETTE[i%PALETTE.length]);const span=document.createElement('span');span.className='digit';span.textContent=String(number);b.append(span);b.dataset.number=String(number);b.setAttribute('aria-label',String(number));
+   if(window.PointerEvent)b.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();lastPointerAt=performance.now();input(number);},{passive:false});
+   else{b.addEventListener('touchstart',e=>{e.preventDefault();lastPointerAt=performance.now();input(number);},{passive:false});if(!('ontouchstart' in window))b.addEventListener('mousedown',e=>{if(e.button===0){e.preventDefault();lastPointerAt=performance.now();input(number);}});}
+   // Keyboard/screen-reader activation only; avoid a second compatibility-click score.
+   b.addEventListener('click',e=>{e.preventDefault();if(e.detail===0&&performance.now()-lastPointerAt>650)input(number);});
+   b.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();input(number);}});
+   board.append(b);tileEls.set(number,b);
+  });resize();render();
+ }
+ function input(number){if(manual)return hit(number);if(!['preview','recall'].includes(s.phase)||reviewing)return false;tickTo(performance.now());return hit(number);}
+ function hit(number){
+  if(!['preview','recall'].includes(s.phase)||reviewing)return false;
+  if(!Number.isInteger(number)||number<1||number>s.n)return false;
+  if(number!==s.next){s.error={kind:number<s.next?'used':'wrong',picked:number,expected:s.next,phase:s.phase};finish('wrong');return false;}
+  s.correct.push(number);s.score++;s.next++;s.phase='recall';
+  if(s.next>s.n){s.completed++;s.phase='transition';s.phaseTime=.24;}
+  render();return true;
+ }
+ function step(dt){
+  if(!Number.isFinite(dt)||dt<0)return;let left=dt;let guard=0;
+  while(left>1e-9&&guard++<200){
+   if(s.phase==='countdown'||s.phase==='transition'){
+    const used=Math.min(left,Math.max(0,s.phaseTime));s.phaseTime-=used;left-=used;
+    if(s.phaseTime<=1e-9){
+     if(s.phase==='countdown'){loadRound(s.round);$('veil').hidden=true;}
+     else if(cfg.mode==='workshop'){cancel();s.phase='workshopDone';showDialog('workshopDone');render();break;}
+     else loadRound(s.round+1);
+    }else break;
+   }else if(s.phase==='preview'||s.phase==='recall'){
+    const used=timed()?Math.min(left,s.remaining/cfg.tempo):left;
+    s.roundTime+=used;s.totalTime+=used;if(timed())s.remaining=Math.max(0,s.remaining-used*cfg.tempo);left-=used;
+    if(timed()&&s.remaining<=1e-8){s.remaining=0;s.error={kind:'timeout',picked:null,expected:s.next,phase:s.phase};finish('timeout');break;}
+    if(peekUntil&&s.roundTime>=peekUntil){peekUntil=0;renderTiles();}
+    break;
+   }else break;
+  }
+  renderTimer();
+ }
+ function finish(kind){
+  cancel();s.phase='over';s.mistakes++;if(eligible()&&s.score>best){best=s.score;saveBest();}showDialog(kind);render();
+ }
+ function repeatRound(){
+  cancel();s.assisted=true;s.score=s.base;const cells=s.cells.map(c=>c.slice());reviewing=false;$('reviewTop').hidden=true;$('overlay').hidden=true;loadRound(s.round,cells);last=performance.now();schedule();
+ }
+ function peek(){if(!['preview','recall'].includes(s.phase)||cfg.mode==='challenge')return;tickTo(performance.now());if(!['preview','recall'].includes(s.phase))return;s.assisted=true;peekUntil=s.roundTime+1;renderTiles();}
+ function pause(advanceFirst=true){
+  if(!['countdown','preview','recall','transition'].includes(s.phase))return;
+  if(advanceFirst&&!manual){const now=performance.now();if(now-last<500)tickTo(now);}
+  if(!['countdown','preview','recall','transition'].includes(s.phase))return;
+  previousPhase=s.phase;s.phase='paused';s.assisted=true;cancel();showDialog('paused');render();
+ }
+ function resume(){if(s.phase!=='paused')return;s.phase=previousPhase;$('overlay').hidden=true;last=performance.now();render();schedule();}
+ function home(){cancel();s.phase='idle';last=0;manual=false;reviewing=false;$('game').hidden=true;$('home').hidden=false;showBest();}
+ function review(){if(s.phase!=='over')return;reviewing=true;$('overlay').hidden=true;$('reviewTop').hidden=false;$('pause').hidden=true;const e=s.error;$('reviewText').textContent=e?.kind==='timeout'?'Süre doldu. Yeşil çerçeve, sıradaki doğru kutuydu.':'Yeşil: sıradaki doğru kutu. Kırmızı: dokunduğun yanlış kutu.';renderTiles();}
+ function showDialog(kind){
+  $('overlay').hidden=false;$('veil').hidden=true;$('pause').hidden=true;
+  const paused=kind==='paused',done=kind==='workshopDone';
+  $('dialogKicker').textContent=paused?'PROVA DURAKLATILDI':done?'ATÖLYE · TUR TAMAM':'DENEME SONU';
+  $('dialogTitle').textContent=paused?'Kaldığın yer hazır.':done?s.n+' / '+s.n+' doğru':s.score+' puan';
+  let reason='';
+  if(paused)reason='Sayılar ve sayaç aynı yerde bekliyor. Duraklatılmış denemeler yardımsız rekoruna yazılmaz.';
+  else if(done)reason='Bu yerleşimi tamamladın. Aynı turu tekrarladığında, o turdan kazanılan puan yeniden sıfırlanır.';
+  else if(s.error?.kind==='timeout')reason=(s.error.phase==='preview'?'Sayıları incelerken süre doldu. Ezberleme ve cevaplama aynı tur süresini kullanıyor.':'Cevapları tamamlarken süre doldu.')+'\nSıradaki sayı '+s.error.expected+' idi.';
+  else if(s.error?.kind==='used')reason=s.error.picked+' numaralı kutuyu daha önce bulmuştun. Sıradaki sayı '+s.error.expected+' idi.';
+  else reason='Sıradaki sayı '+s.error?.expected+' iken '+s.error?.picked+' numaralı kutuya dokundun. Çözümü açıp iki konumu karşılaştır.';
+  $('dialogBody').textContent=reason;$('results').hidden=paused;
+  $('results').innerHTML=[['Tur '+(s.round+1),s.n+' sayı'],[Math.min(s.next-1,s.n)+' / '+s.n,'Bu tur doğru'],[s.roundTime.toFixed(1)+' sn','Bu tur harcanan'],[timed()?s.remaining.toFixed(1)+' sn':'∞','Kalan model süresi']].map(v=>'<div><b>'+v[0]+'</b>'+v[1]+'</div>').join('');
+  $('recordNote').textContent=eligible()?'Yerel rekor: '+best:'Yardımlı / ayrı çalışma · rekorla karışmaz';
+  $('dialogContinue').textContent=paused?'DEVAM ET':done?'AYNI TURU YİNELE':'BAŞTAN TEKRAR OYNA';
+  $('review').hidden=paused||done;$('dialogContinue').onclick=()=>{if(s.phase==='paused')resume();else if(s.phase==='workshopDone')repeatRound();else begin({...cfg});};
+ }
+ function renderTiles(){
+  const all=reviewing||s.phase==='preview'||s.phase==='transition'||s.phase==='workshopDone'||(peekUntil>s.roundTime);
+  tileEls.forEach((el,n)=>{
+   const done=s.correct.includes(n),visible=all||done;
+   el.classList.toggle('hidden-number',!visible);el.classList.toggle('correct',done);el.classList.toggle('next-hint',cfg.guide&&!reviewing&&n===s.next);
+   el.classList.toggle('answer',reviewing&&n===s.error?.expected);el.classList.toggle('bad',reviewing&&n===s.error?.picked);
+   el.setAttribute('aria-label',visible?String(n):(s.cells[n-1][0]+1)+'. sütun '+(s.cells[n-1][1]+1)+'. satır, kapalı kutu');
+  });
+ }
+ function renderTimer(){
+  const fraction=timed()?(s.budget?s.remaining/s.budget:1):1;
+  $('timerFill').style.transform='scaleX('+Math.max(0,Math.min(1,fraction))+')';
+  $('timerFill').style.background=fraction>.55?'#9aefcc':fraction>.25?'#f4f5d9':'#ffdb7d';
+  $('timerTrack').setAttribute('aria-valuenow',String(Math.round(fraction*100)));
+  $('timerText').hidden=!cfg.seconds;$('timerText').textContent=timed()?'≈ '+s.remaining.toFixed(1)+' sn':'Süresiz';
+  if(s.phase==='countdown')$('count').textContent=s.phaseTime>.5?'3':s.phaseTime>.25?'2':'1';
+ }
+ function render(){
+  $('score').textContent=String(s.score);$('liveLabel').textContent=s.score+' puan';
+  const generated=cfg.route==='video'&&s.round>=SOURCE.rounds.length;
+  $('badge').textContent=generated?'Üretilmiş devam':cfg.route==='random'?'Rastgele çalışma':cfg.mode==='challenge'?'Kayıttaki yerleşim · prova':'Kayıttaki yerleşim · çalışma';
+  $('status').textContent=reviewing?'':s.phase==='preview'?'1’e dokununca diğerleri kapanır.':s.phase==='recall'?(cfg.guide?'Sıradaki sayı: '+s.next:'Sırayı hafızadan sürdür.'):s.phase==='transition'?'Tur tamam.':'';
+  $('footer').textContent='Tur '+(s.round+1)+' · '+s.n+' sayı'+(generated?' · üretilmiş':'')+' · MEMORY V1';
+  $('practiceTools').hidden=cfg.mode==='challenge'||reviewing||!['preview','recall'].includes(s.phase);
+  $('footer').hidden=!$('practiceTools').hidden;$('veil').hidden=s.phase!=='countdown';$('pause').hidden=!['countdown','preview','recall','transition'].includes(s.phase);
+  renderTiles();renderTimer();
+ }
+ function resize(){
+  if($('game').hidden)return;const r=stage.getBoundingClientRect();const W=r.width,H=r.height;const landscape=W>H*1.35;let boardW,cell,gap,left,top;
+  const ratio=cfg.size==='large'?.76:.62;
+  stage.style.setProperty('--score-size',Math.min(58,W*.112,H*.064).toFixed(2)+'px');
+  if(landscape){cell=Math.min((H*.77-5*6)/6,(W*.40-18)/4);gap=cell*.13;boardW=4*cell+3*gap;left=(W-boardW)/2;top=(H-(6*cell+5*gap))/2;}
+  else{
+   const maxW=Math.min(W,600)*ratio;cell=maxW/(4+3*.13);gap=cell*.13;
+   // Keep all 6 rows below the HUD and above controls on short viewports.
+   const minTop=$('score').getBoundingClientRect().bottom-r.top+10;
+   const reserve=cfg.mode==='challenge'?48:86;
+   const maxH=Math.max(120,Math.min(H*.57,H-reserve-minTop));
+   if(6*cell+5*gap>maxH){cell=maxH/(6+5*.13);gap=cell*.13;}
+   boardW=4*cell+3*gap;left=(W-boardW)/2;const boardH=6*cell+5*gap;
+   top=Math.max(minTop,H*.615-boardH/2);top=Math.min(top,H-reserve-boardH);
+  }
+  stage.style.setProperty('--cell',cell.toFixed(3)+'px');stage.style.setProperty('--gap',gap.toFixed(3)+'px');stage.style.setProperty('--font',(cell*.48).toFixed(2)+'px');
+  board.style.left=left.toFixed(3)+'px';board.style.top=top.toFixed(3)+'px';
+  $('status').style.top=landscape?'auto':(top+6*cell+5*gap+9).toFixed(2)+'px';
+  $('status').style.bottom=landscape?'17%':'auto';
+ }
+ function resizeChanged(){if($('game').hidden)return;resize();}
+ for(let i=0;i<12;i++){const opt=document.createElement('option');opt.value=String(i);opt.textContent=(i+1)+'. tur · '+(i+3)+' sayı';$('startRound').append(opt);}
+ $('start').addEventListener('click',()=>begin());$('exit').addEventListener('click',()=>{if(s.phase==='paused'||s.phase==='over'||s.phase==='workshopDone')home();else pause();});$('pause').addEventListener('click',()=>pause());$('toHome').addEventListener('click',home);$('peek').addEventListener('click',peek);$('repeat').addEventListener('click',repeatRound);$('review').addEventListener('click',review);
+ $('reviewReturn').addEventListener('click',()=>{reviewing=false;$('reviewTop').hidden=true;showDialog(s.error?.kind);render();});
+ $('reviewRetry').addEventListener('click',()=>{cfg.mode='workshop';repeatRound();});
+ $('reload').addEventListener('click',()=>{const u=new URL(location.href);u.searchParams.set('v',BUILD+'-'+Date.now());location.replace(u.href);});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(false);});window.addEventListener('pagehide',()=>pause(false));window.addEventListener('resize',resizeChanged);if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeChanged);if(window.ResizeObserver)new ResizeObserver(resizeChanged).observe(stage);
+ document.addEventListener('pointerup',()=>{lastPointerAt=performance.now();},true);
+ document.addEventListener('touchend',()=>{lastPointerAt=performance.now();},{capture:true,passive:true});
+ board.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('keydown',e=>{if(e.code==='Escape'&&!$('game').hidden){e.preventDefault();if(s.phase==='paused')resume();else pause();}});
+ window.addEventListener('error',e=>{const box=$('errorBox');box.hidden=false;box.textContent='Bir tarayıcı hatası oluştu: '+e.message+'\nSürüm: '+BUILD;});
+ best=readBest();showBest();$('boot').hidden=true;
+ // Diagnostic methods exist only under ?test=1; never connect to or control another game.
+ if(new URLSearchParams(location.search).get('test')==='1')window.__memoryTest={
+  source:()=>JSON.parse(JSON.stringify(SOURCE)),notes:MODEL_NOTES,
+  start:(options={})=>{begin({mode:'challenge',route:'video',start:0,tempo:1,size:'reference',guide:false,seconds:false,...options});cancel();manual=true;loadRound(cfg.start);$('veil').hidden=true;},
+  hit,step,pause:()=>pause(false),resume:()=>{resume();cancel();manual=true;},peek,repeat:repeatRound,review,home,
+  snapshot:()=>JSON.parse(JSON.stringify({...s,cfg,raf:!!raf,best,manual,peekUntil,reviewing})),
+  pose:(round,next=1,fraction=1)=>{begin({mode:'challenge',route:'video',start:round,tempo:1,size:'reference',guide:false,seconds:false});cancel();manual=true;loadRound(round);s.next=next;s.correct=Array.from({length:next-1},(_,i)=>i+1);s.score=Array.from({length:round},(_,i)=>i+3).reduce((a,b)=>a+b,0)+next-1;s.remaining=s.budget*fraction;s.phase=next===1?'preview':'recall';render();},
+  resize,eligible,storageKey:KEY,budgetFor,
+  randomLayouts:(count=100)=>{const before=cfg;cfg={...cfg,route:'random'};const out=[];for(let i=0;i<count;i++)out.push(layoutFor(i%50));cfg=before;return out;}
+ };
+})();
+</script>
+</body></html>
